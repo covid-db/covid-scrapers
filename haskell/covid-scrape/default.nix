@@ -15,6 +15,12 @@ let gitignoreSrc = import (pkgs.fetchFromGitHub {
       rev = "2ced4519f865341adcb143c5d668f955a2cb997f";
       sha256 = "0fc5bgv9syfcblp23y05kkfnpgh3gssz6vn24frs8dzw39algk2z";
     }) {};
+    beamSrc = pkgs.fetchFromGitHub {
+      owner = "tathoughies";
+      repo = "beam";
+      rev = "ff6d16daa189355db4cf24e90d8173768c1418bb";
+      sha256 = "11f1nrw3s7ihf3lyskjx1mdfi4s5d3rfn0fwwmcc8xl2dgjdlnk8";
+    };
 
 in
 pkgs.haskell.packages.${compiler}.developPackage {
@@ -22,12 +28,10 @@ pkgs.haskell.packages.${compiler}.developPackage {
   root = gitignoreSrc.gitignoreSource ./.;
 
   overrides = self: super: with pkgs.haskell.lib; {
-    # Don't run a package's test suite
-    # foo = dontCheck super.foo;
-    #
-    # Don't enforce package's version constraints
-    # bar = doJailbreak super.bar;
-    #
+    beam-core = dontCheck super.beam-core;
+    beam-migrate = doJailbreak super.beam-migrate;
+    beam-postgres = dontCheck super.beam-postgres;
+
     # Get a specific hackage version straight from hackage. Unlike the above
     # callHackage approach, this will always succeed if the version is on
     # hackage. The downside is that you have to specify the hash manually.
@@ -42,10 +46,12 @@ pkgs.haskell.packages.${compiler}.developPackage {
     # <TAB> to get a tab-completed list of functions.
   };
   source-overrides = {
-    # Use a specific hackage version using callHackage. Only works if the
-    # version you want is in the version of all-cabal-hashes that you have.
-    # bytestring = "0.10.8.1";
-    #
+    beam-core = "${beamSrc}/beam-core";
+    beam-migrate = "${beamSrc}/beam-migrate";
+    beam-postgres = "${beamSrc}/beam-postgres";
+
+    haskell-src-exts = "1.21.1";
+
     # Use a particular commit from github
     # parsec = pkgs.fetchFromGitHub
     #   { owner = "hvr";
