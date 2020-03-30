@@ -24,6 +24,7 @@ Source-repository head
 library
   exposed-modules:
     Covid19
+    Covid19.Alabama
     Covid19.Michigan
     Covid19.NewYork
     Covid19.Place
