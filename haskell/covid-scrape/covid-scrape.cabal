@@ -26,8 +26,10 @@ library
     Covid19
     Covid19.Place
     Covid19.Report
+    Covid19.Utah
 
-  -- other-modules:
+  other-modules:
+    Covid19.Instances
 
   build-depends:
     HsOpenSSL,
@@ -41,6 +43,7 @@ library
     errors,
     http-streams,
     lens,
+    lens-aeson,
     lens-csv,
     string-conv,
     text >= 1.2 && < 1.3,
