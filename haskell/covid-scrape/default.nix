@@ -16,7 +16,7 @@ let gitignoreSrc = import (pkgs.fetchFromGitHub {
       sha256 = "0fc5bgv9syfcblp23y05kkfnpgh3gssz6vn24frs8dzw39algk2z";
     }) {};
     beamSrc = pkgs.fetchFromGitHub {
-      owner = "tathoughies";
+      owner = "tathougies";
       repo = "beam";
       rev = "ff6d16daa189355db4cf24e90d8173768c1418bb";
       sha256 = "11f1nrw3s7ihf3lyskjx1mdfi4s5d3rfn0fwwmcc8xl2dgjdlnk8";
