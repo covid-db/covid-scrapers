@@ -53,12 +53,12 @@ pkgs.haskell.packages.${compiler}.developPackage {
     haskell-src-exts = "1.21.1";
 
     # Use a particular commit from github
-    # tagsoup-parsec = pkgs.fetchFromGitHub
-    #   { owner = "mightybyte";
-    #     repo = "tagsoup-parsec";
-    #     rev = "71e94f28c16dcf7b92d6c1cd8039ec33e6679715";
-    #     sha256 = "0xgwhzccswfi0rksfp2739smdrs4f7f3ai4ky1hc3kpsm7q8y0fb";
-    #   };
+    tagsoup-parsec = pkgs.fetchFromGitHub
+      { owner = "mightybyte";
+        repo = "tagsoup-parsec";
+        rev = "e87a6b00b1a49e8cea6c4e26e732806d3e782ef3";
+        sha256 = "01siwipdznjdqpkflwingq89kp8knbhxwq3wi13r1l41p7vwfq8a";
+      };
   };
   modifier = drv: pkgs.haskell.lib.overrideCabal drv (attrs: {
     buildTools = (attrs.buildTools or []) ++ [

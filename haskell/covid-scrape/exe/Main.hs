@@ -8,6 +8,7 @@ import Data.Time
 import Options.Applicative
 ------------------------------------------------------------------------------
 import Covid19
+import Covid19.NewYork
 import Covid19.Utah
 ------------------------------------------------------------------------------
 
@@ -20,11 +21,12 @@ main = do
     case c of
       JHU -> runScraper env
       Utah -> scrapeUtah
+      NewYork -> scrapeNewYork
   where
     opts = info (commands <**> helper)
       (fullDesc <> header "COVID-19 data scraping tools")
 
-data Command = JHU | Utah
+data Command = JHU | Utah | NewYork
 
 commands :: Parser Command
 commands = hsubparser
@@ -32,4 +34,6 @@ commands = hsubparser
        (progDesc "Johns Hopkins dataset"))
   <> command "utah" (info (pure Utah)
        (progDesc "Utah cases"))
+  <> command "newyork" (info (pure NewYork)
+       (progDesc "New York cases"))
   )

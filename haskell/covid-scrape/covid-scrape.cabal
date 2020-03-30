@@ -24,6 +24,7 @@ Source-repository head
 library
   exposed-modules:
     Covid19
+    Covid19.NewYork
     Covid19.Place
     Covid19.Report
     Covid19.Utah
@@ -45,7 +46,10 @@ library
     lens,
     lens-aeson,
     lens-csv,
+    parsec,
     string-conv,
+    tagsoup,
+    tagsoup-parsec,
     text >= 1.2 && < 1.3,
     time >= 1.4 && < 1.10
 

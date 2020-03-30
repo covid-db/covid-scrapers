@@ -72,12 +72,6 @@ instance C.ToNamedRecord UtahReport where
 instance C.DefaultOrdered UtahReport where
     headerOrder _ = C.header ["date", "jurisdiction", "utah_cases", "visitor_cases"]
 
---instance C.ToField Day where
---  toField = toS . formatTime defaultTimeLocale "%D"
---
---instance C.FromField Day where
---  parseField = parseTimeM True defaultTimeLocale "%D" . toS
-
 scrapeUtah :: IO ()
 scrapeUtah = do
   withOpenSSL $ do
