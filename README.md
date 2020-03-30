@@ -8,5 +8,6 @@ Pick one that interests you, figure out where the data is, and start coding!
 
 ## Completed Scrapers
 
+* [Johns Hopkins Dataset](https://github.com/covid-db/covid-scrapers/blob/master/haskell/covid-scrape/lib/Covid19.hs#L80)
 * [New York](haskell/covid-scrape/lib/Covid19/NewYork.hs)
 * [Utah](haskell/covid-scrape/lib/Covid19/Utah.hs)
