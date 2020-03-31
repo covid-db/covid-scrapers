@@ -57,7 +57,6 @@ getNewYorkData = do
     (UTCTime d _) <- getCurrentTime
     page <- get "https://coronavirus.health.ny.gov/county-county-breakdown-positive-cases" concatHandler
     let tags = filter (not . isWhitespaceTag) $ parseTags $ decodeUtf8 page
-    mapM_ print tags
     let a = tParse nyCases tags
     return $ Right $ map (\(c,n) -> NYReport d c (read $ T.unpack $ T.filter (/=',') n)) a
 

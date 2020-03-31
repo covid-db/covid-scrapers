@@ -52,7 +52,6 @@ getMichiganData = do
     (UTCTime d _) <- getCurrentTime
     page <- get "https://www.michigan.gov/coronavirus/0,9753,7-406-98163_98173---,00.html" concatHandler
     let tags = filter (not . isWhitespaceTag) $ parseTags $ decodeUtf8 page
-    mapM_ print tags
     let a = tParse michCases tags
     return $ Right $ map (\(c,cs,ds) -> MichReport d (T.strip c) (read $ T.unpack cs) (read $ T.unpack $ fromMaybe "0" ds)) a
 

@@ -1,6 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NumericUnderscores #-}
 
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
 ------------------------------------------------------------------------------
@@ -20,26 +22,34 @@ main = do
     now <- getCurrentTime
     let env = Env now
     c <- execParser opts
-    case c of
-      JHU -> runScraper env
-      Utah -> scrapeUtah
-      NewYork -> scrapeNewYork
-      Michigan -> scrapeMichigan
-      --Alabama -> scrapeAlabama
+    runCommand env c
   where
     opts = info (commands <**> helper)
       (fullDesc <> header "COVID-19 data scraping tools")
 
 data Command
-  = JHU
+  = All
+  | JHU
 --  | Alabama
   | Michigan
   | NewYork
   | Utah
+  deriving (Eq,Ord,Show,Read,Enum,Bounded)
+
+runCommand :: Env -> Command -> IO ()
+runCommand env = \case
+    All -> mapM_ (runCommand env) [succ All .. maxBound]
+    JHU -> runScraper env
+    --Alabama -> scrapeAlabama
+    Michigan -> scrapeMichigan
+    NewYork -> scrapeNewYork
+    Utah -> scrapeUtah
 
 commands :: Parser Command
 commands = hsubparser
-  (  command "jhu" (info (pure JHU)
+  (  command "all" (info (pure All)
+       (progDesc "Run all scrapers"))
+  <> command "jhu" (info (pure JHU)
        (progDesc "Johns Hopkins dataset"))
 --  <> command "alabama" (info (pure Alabama)
 --       (progDesc "Alabama cases"))

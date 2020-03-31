@@ -55,12 +55,6 @@ instance C.ToField Column where
 instance C.FromField Column where
   parseField = parseCol . toS
 
---instance C.ToField Day where
---  toField = toS . formatTime defaultTimeLocale "%D"
---
---instance C.FromField Day where
---  parseField = parseTimeM True defaultTimeLocale "%D" . toS
-
 runScraper :: Env -> IO ()
 runScraper env = do
   withOpenSSL $ do
@@ -71,6 +65,7 @@ runScraper env = do
         putStrLn "Unrecoverable rror in scraped data:"
         putStrLn e
       Right m -> do
+        putStrLn "Parsed JHU case data successfully."
         let (places, pidMap) = mkPlaces $ S.fromList $ map fst $ M.keys m
         let cfg = C.defaultEncodeOptions { C.encUseCrLf = False }
         BL.writeFile "places.csv" $ C.encodeDefaultOrderedByNameWith cfg places

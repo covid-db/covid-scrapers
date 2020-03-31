@@ -79,10 +79,11 @@ scrapeUtah = do
     case md of
       Left e -> putStrLn e
       Right d -> do
+        putStrLn "Parsed Utah case data successfully."
         let cfg = C.defaultEncodeOptions { C.encUseCrLf = False }
         BL.appendFile "utah.csv" $ C.encodeDefaultOrderedByNameWith cfg d
 
-getUtahData :: IO (Either String [UtahReport]) -- ([Text], [Int], [Int])
+getUtahData :: IO (Either String [UtahReport])
 getUtahData = do
     (UTCTime d _) <- getCurrentTime
     page <- get "https://coronavirus-dashboard.utah.gov/" concatHandler
