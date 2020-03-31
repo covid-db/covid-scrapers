@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Covid19.Alabama where
+module Covid19.USA.NewYork where
 
 ------------------------------------------------------------------------------
 import           Control.Lens
@@ -26,60 +26,57 @@ import           Text.Parsec
 import           Covid19.Instances()
 ------------------------------------------------------------------------------
 
-data AlabamaReport = AlabamaReport
-  { alabamaReport_date :: Day
-  , alabamaReport_county :: Text
-  , alabamaReport_cases :: Int
-  , alabamaReport_deaths :: Int
+data NYReport = NYReport
+  { nyReport_date :: Day
+  , nyReport_county :: Text
+  , nyReport_positiveCases :: Int
   } deriving (Eq,Ord,Show,Read)
 
-instance C.ToNamedRecord AlabamaReport where
-    toNamedRecord (AlabamaReport d c pc) = C.namedRecord
+instance C.ToNamedRecord NYReport where
+    toNamedRecord (NYReport d c pc) = C.namedRecord
       [ "date" C..= d
       , "county" C..= c
-      , "cases" C..= cs
-      , "deaths" C..= ds
+      , "cases" C..= pc
       ]
-instance C.DefaultOrdered AlabamaReport where
-    headerOrder _ = C.header ["date", "county", "cases", "deaths"]
+instance C.DefaultOrdered NYReport where
+    headerOrder _ = C.header ["date", "county", "cases"]
 
-scrapeAlabama :: IO ()
-scrapeAlabama = do
+scrapeNewYork :: IO ()
+scrapeNewYork = do
   withOpenSSL $ do
-    md <- getAlabamaData
+    md <- getNewYorkData
     case md of
       Left e -> putStrLn e
       Right d -> do
-        putStrLn "Parsed Alabama case data successfully."
+        putStrLn "Parsed NY case data successfully."
         let cfg = C.defaultEncodeOptions { C.encUseCrLf = False }
-        BL.appendFile "Alabama.csv" $ C.encodeDefaultOrderedByNameWith cfg d
+        BL.appendFile "newyork.csv" $ C.encodeDefaultOrderedByNameWith cfg d
 
-getAlabamaData :: IO (Either String [AlabamaReport])
-getAlabamaData = do
+getNewYorkData :: IO (Either String [NYReport])
+getNewYorkData = do
     (UTCTime d _) <- getCurrentTime
-    page <- get "https://www.alabamapublichealth.gov/infectiousdiseases/2019-coronavirus.html" concatHandler
+    page <- get "https://coronavirus.health.ny.gov/county-county-breakdown-positive-cases" concatHandler
     let tags = filter (not . isWhitespaceTag) $ parseTags $ decodeUtf8 page
     mapM_ print tags
-    let a = tParse alabamaCases tags
-    return $ Right $ map (\(c,cs,ds) -> AlabamaReport d c (read $ T.unpack cs) (read $ T.unpack ds)) a
+    let a = tParse nyCases tags
+    return $ Right $ map (\(c,n) -> NYReport d c (read $ T.unpack $ T.filter (/=',') n)) a
 
 isWhitespaceTag (TagText t) = T.null $ T.strip t
 isWhitespaceTag _ = False
 
-alabamaCases :: TagParser Text [(Text, Text)]
-alabamaCases = do
-  many notDeaths
-  textTag "Deaths"
+nyCases :: TagParser Text [(Text, Text)]
+nyCases = do
+  many notPositiveCases
+  textTag "Positive Cases"
   closeTag "th"
   closeTag "tr"
-  closeTag "thead"
   cs <- many (try countyCases)
   manyTill anyToken eof
   return cs
 
-notDeaths = tagEater f
+notPositiveCases = tagEater f
   where
-    f tag@(TagText t) = if t == "Deaths" then Nothing else Just tag
+    f tag@(TagText t) = if t == "Positive Cases" then Nothing else Just tag
     f t = Just t
 
 countyCases = do
@@ -88,13 +85,10 @@ countyCases = do
   county <- textTagContents
   closeTag "td"
   openTag "td"
-  county <- textTagContents
-  closeTag "td"
-  openTag "td"
-  deaths <- textTagContents
+  cases <- textTagContents
   closeTag "td"
   closeTag "tr"
-  return (county, cases, deaths)
+  return (county, cases)
 
 textTagContents :: Show t => ParsecT [Tag t] () Identity t
 textTagContents = tagEater f

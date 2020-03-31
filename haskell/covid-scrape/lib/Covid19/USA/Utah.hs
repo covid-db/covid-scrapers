@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Covid19.Utah where
+module Covid19.USA.Utah where
 
 ------------------------------------------------------------------------------
 import           Control.Lens

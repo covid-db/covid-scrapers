@@ -8,10 +8,10 @@ import Data.Time
 import Options.Applicative
 ------------------------------------------------------------------------------
 import Covid19
-import Covid19.Alabama
-import Covid19.Michigan
-import Covid19.NewYork
-import Covid19.Utah
+--import Covid19.USA.Alabama
+import Covid19.USA.Michigan
+import Covid19.USA.NewYork
+import Covid19.USA.Utah
 ------------------------------------------------------------------------------
 
 
@@ -25,23 +25,28 @@ main = do
       Utah -> scrapeUtah
       NewYork -> scrapeNewYork
       Michigan -> scrapeMichigan
-      Alabama -> scrapeAlabama
+      --Alabama -> scrapeAlabama
   where
     opts = info (commands <**> helper)
       (fullDesc <> header "COVID-19 data scraping tools")
 
-data Command = JHU | Utah | NewYork | Michigan | Alabama
+data Command
+  = JHU
+--  | Alabama
+  | Michigan
+  | NewYork
+  | Utah
 
 commands :: Parser Command
 commands = hsubparser
   (  command "jhu" (info (pure JHU)
        (progDesc "Johns Hopkins dataset"))
-  <> command "utah" (info (pure Utah)
-       (progDesc "Utah cases"))
-  <> command "newyork" (info (pure NewYork)
-       (progDesc "New York cases"))
+--  <> command "alabama" (info (pure Alabama)
+--       (progDesc "Alabama cases"))
   <> command "michigan" (info (pure Michigan)
        (progDesc "Michigan cases"))
-  <> command "alabama" (info (pure Alabama)
-       (progDesc "Alabama cases"))
+  <> command "newyork" (info (pure NewYork)
+       (progDesc "New York cases"))
+  <> command "utah" (info (pure Utah)
+       (progDesc "Utah cases"))
   )

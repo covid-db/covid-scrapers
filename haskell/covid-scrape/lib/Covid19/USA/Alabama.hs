@@ -1,17 +1,24 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 
-module Covid19.Michigan where
+module Covid19.USA.Alabama where
 
 ------------------------------------------------------------------------------
 import           Control.Lens
+import           Data.Aeson.Lens
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Csv as C
-import           Data.Maybe
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Encoding
+import           Data.Text.Lens
 import           Data.Time
 import           Network.Http.Client hiding (Connection, withConnection)
+import           Numeric.Lens
 import           OpenSSL
 import           Text.HTML.TagSoup.Parsec
 import           Text.Parsec
@@ -19,53 +26,53 @@ import           Text.Parsec
 import           Covid19.Instances()
 ------------------------------------------------------------------------------
 
-data MichReport = MichReport
-  { michReport_date :: Day
-  , michReport_county :: Text
-  , michReport_cases :: Int
-  , michReport_deaths :: Int
+data AlabamaReport = AlabamaReport
+  { alabamaReport_date :: Day
+  , alabamaReport_county :: Text
+  , alabamaReport_cases :: Int
+  , alabamaReport_deaths :: Int
   } deriving (Eq,Ord,Show,Read)
 
-instance C.ToNamedRecord MichReport where
-    toNamedRecord (MichReport d c cs ds) = C.namedRecord
+instance C.ToNamedRecord AlabamaReport where
+    toNamedRecord (AlabamaReport d c cs ds) = C.namedRecord
       [ "date" C..= d
       , "county" C..= c
       , "cases" C..= cs
       , "deaths" C..= ds
       ]
-instance C.DefaultOrdered MichReport where
+instance C.DefaultOrdered AlabamaReport where
     headerOrder _ = C.header ["date", "county", "cases", "deaths"]
 
-scrapeMichigan :: IO ()
-scrapeMichigan = do
+scrapeAlabama :: IO ()
+scrapeAlabama = do
   withOpenSSL $ do
-    md <- getMichiganData
+    md <- getAlabamaData
     case md of
       Left e -> putStrLn e
       Right d -> do
-        putStrLn "Parsed Michigan case data successfully."
+        putStrLn "Parsed Alabama case data successfully."
         let cfg = C.defaultEncodeOptions { C.encUseCrLf = False }
-        BL.appendFile "michigan.csv" $ C.encodeDefaultOrderedByNameWith cfg d
+        BL.appendFile "Alabama.csv" $ C.encodeDefaultOrderedByNameWith cfg d
 
-getMichiganData :: IO (Either String [MichReport])
-getMichiganData = do
+getAlabamaData :: IO (Either String [AlabamaReport])
+getAlabamaData = do
     (UTCTime d _) <- getCurrentTime
-    page <- get "https://www.michigan.gov/coronavirus/0,9753,7-406-98163_98173---,00.html" concatHandler
+    page <- get "https://www.alabamapublichealth.gov/infectiousdiseases/2019-coronavirus.html" concatHandler
     let tags = filter (not . isWhitespaceTag) $ parseTags $ decodeUtf8 page
     mapM_ print tags
-    let a = tParse michCases tags
-    return $ Right $ map (\(c,cs,ds) -> MichReport d (T.strip c) (read $ T.unpack cs) (read $ T.unpack $ fromMaybe "0" ds)) a
+    let a = tParse alabamaCases tags
+    return $ Right $ map (\(d,c,cs,ds) -> AlabamaReport d c (read $ T.unpack cs) (read $ T.unpack ds)) a
 
 isWhitespaceTag (TagText t) = T.null $ T.strip t
 isWhitespaceTag _ = False
 
-michCases :: TagParser Text [(Text, Text, Maybe Text)]
-michCases = do
+alabamaCases :: TagParser Text [(Text, Text)]
+alabamaCases = do
   many notDeaths
   textTag "Deaths"
-  closeTag "strong"
-  closeTag "td"
+  closeTag "th"
   closeTag "tr"
+  closeTag "thead"
   cs <- many (try countyCases)
   manyTill anyToken eof
   return cs
@@ -81,10 +88,10 @@ countyCases = do
   county <- textTagContents
   closeTag "td"
   openTag "td"
-  cases <- textTagContents
+  county <- textTagContents
   closeTag "td"
   openTag "td"
-  deaths <- optionMaybe textTagContents
+  deaths <- textTagContents
   closeTag "td"
   closeTag "tr"
   return (county, cases, deaths)
