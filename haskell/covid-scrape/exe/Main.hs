@@ -13,6 +13,7 @@ import Covid19
 --import Covid19.USA.Alabama
 import Covid19.USA.Michigan
 import Covid19.USA.NewYork
+import Covid19.USA.NewJersey
 import Covid19.USA.Utah
 ------------------------------------------------------------------------------
 
@@ -33,6 +34,7 @@ data Command
 --  | Alabama
   | Michigan
   | NewYork
+  | NewJersey
   | Utah
   deriving (Eq,Ord,Show,Read,Enum,Bounded)
 
@@ -43,6 +45,7 @@ runCommand env = \case
     --Alabama -> scrapeAlabama
     Michigan -> scrapeMichigan
     NewYork -> scrapeNewYork
+    NewJersey -> scrapeNewJersey
     Utah -> scrapeUtah
 
 commands :: Parser Command
@@ -57,6 +60,8 @@ commands = hsubparser
        (progDesc "Michigan cases"))
   <> command "newyork" (info (pure NewYork)
        (progDesc "New York cases"))
+  <> command "newjersey" (info (pure NewJersey)
+       (progDesc "New Jersey cases"))
   <> command "utah" (info (pure Utah)
        (progDesc "Utah cases"))
   )
