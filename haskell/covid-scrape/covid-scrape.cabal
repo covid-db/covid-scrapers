@@ -29,6 +29,7 @@ library
     --Covid19.USA.Alabama
     Covid19.USA.Michigan
     Covid19.USA.NewYork
+    Covid19.USA.NewJersey
     Covid19.USA.Utah
 
   other-modules:
@@ -44,11 +45,13 @@ library
     cassava,
     containers >= 0.5 && < 0.7,
     errors,
+    vector,
     http-streams,
     lens,
     lens-aeson,
     lens-csv,
     parsec,
+    scientific,
     string-conv,
     tagsoup,
     tagsoup-parsec,
